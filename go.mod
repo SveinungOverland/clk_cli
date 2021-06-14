@@ -1,4 +1,4 @@
-module github.com/SveinungOverland/clk_cli
+module clk
 
 go 1.16
 

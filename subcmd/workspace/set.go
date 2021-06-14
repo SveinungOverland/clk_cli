@@ -20,8 +20,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/SveinungOverland/clk_cli/cmd"
-	"github.com/SveinungOverland/clk_cli/util"
+	"clk/cmd"
+	"clk/util"
 )
 
 // setCmd represents the set command

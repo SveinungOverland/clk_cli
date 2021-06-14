@@ -1,8 +1,8 @@
 package cmd
 
 import (
+	"clk/util"
 	"fmt"
-	"github.com/SveinungOverland/clk_cli/util"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"

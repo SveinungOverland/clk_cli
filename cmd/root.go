@@ -1,8 +1,8 @@
 package cmd
 
 import (
+	"clk/util"
 	"fmt"
-	"github.com/SveinungOverland/clk_cli/util"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -20,7 +20,7 @@ var (
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "github.com/SveinungOverland/clk_cli_cli",
+	Use:   "clk",
 	Short: "A brief description of your application",
 	Long: `A longer description that spans multiple lines and likely contains
 examples and usage of using your application. For example:
@@ -46,7 +46,7 @@ func init() {
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
 
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.github.com/SveinungOverland/clk_cli.yaml)")
+	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.clk.yaml)")
 
 	rootCmd.PersistentFlags().StringVarP(&api_key, "api_key", "a", "", "Clockify api key")
 	rootCmd.PersistentFlags().StringVarP(&workspace, "workspace", "w", "", "Clockify workspace to use")
@@ -71,17 +71,17 @@ func initConfig() {
 		// Find home directory.
 		cobra.CheckErr(err)
 
-		// Search config in home directory with name ".github.com/SveinungOverland/clk_cli_cli" (without extension).
+		// Search config in home directory with name ".clk_cli" (without extension).
 		viper.AddConfigPath(home)
-		viper.SetConfigName(".github.com/SveinungOverland/clk_cli_config")
+		viper.SetConfigName(".clk_config")
 	}
 
 	viper.AutomaticEnv() // read in environment variables that match
 
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {
-		fmt.Fprintln(os.Stdout, "Using config file:", viper.ConfigFileUsed())
-		fmt.Println(viper.AllSettings())
+		// fmt.Fprintln(os.Stdout, "Using config file:", viper.ConfigFileUsed())
+		// fmt.Println(viper.AllSettings())
 	}
 
 	if viper.GetString("api_key") == "" {
@@ -90,8 +90,8 @@ func initConfig() {
 		fmt.Scanln(&input)
 		viper.Set("api_key", input)
 		if util.IsApiKeyUseable() {
-			fmt.Println("Saving config to:", fmt.Sprint(home, "/.github.com/SveinungOverland/clk_cli_config.yaml"))
-			if err := viper.WriteConfigAs(fmt.Sprint(home, "/.github.com/SveinungOverland/clk_cli_config.yaml")); err != nil {
+			fmt.Println("Saving config to:", fmt.Sprint(home, "/.clk_config.yaml"))
+			if err := viper.WriteConfigAs(fmt.Sprint(home, "/.clk_config.yaml")); err != nil {
 				fmt.Println(err.Error())
 				os.Exit(1)
 			}
