@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"clk/util"
 	"fmt"
 
 	"github.com/spf13/cobra"
@@ -18,6 +19,17 @@ This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("workspace called")
+	},
+	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		workspaces, err := util.GetWorkSpaces()
+		if err != nil {
+			return nil, cobra.ShellCompDirectiveNoFileComp
+		}
+		output := make([]string, len(workspaces))
+		for i, workspace := range workspaces {
+			output[i] = workspace.Name
+		}
+		return output, cobra.ShellCompDirectiveNoFileComp
 	},
 }
 
