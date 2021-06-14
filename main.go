@@ -15,7 +15,7 @@ limitations under the License.
 */
 package main
 
-import "clk/cmd"
+import "github.com/SveinungOverland/clk_cli/cmd"
 
 func main() {
 	cmd.Execute()

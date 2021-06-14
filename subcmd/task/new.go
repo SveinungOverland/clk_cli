@@ -16,8 +16,8 @@ limitations under the License.
 package cmd
 
 import (
-	"clk/cmd"
 	"fmt"
+	"github.com/SveinungOverland/clk_cli/cmd"
 
 	"github.com/spf13/cobra"
 )
