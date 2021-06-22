@@ -1,11 +1,11 @@
 package cmd
 
 import (
-	"clk/util"
 	"fmt"
 
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
+
+	subcmd_task "clk/cmd/subcmd/task"
 )
 
 // taskCmd represents the task command
@@ -20,13 +20,17 @@ This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("task called")
-		fmt.Println(viper.AllSettings())
-		fmt.Println(util.GetWorkSpaces())
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(TaskCmd)
+
+	subcmd_task.RegisterCurrent(TaskCmd)
+	subcmd_task.RegisterEnd(TaskCmd)
+	subcmd_task.RegisterNew(TaskCmd)
+	subcmd_task.RegisterStart(TaskCmd)
+	subcmd_task.RegisterList(TaskCmd)
 
 	// Here you will define your flags and configuration settings.
 

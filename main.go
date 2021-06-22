@@ -15,7 +15,9 @@ limitations under the License.
 */
 package main
 
-import "clk/cmd"
+import (
+	"clk/cmd"
+)
 
 func main() {
 	cmd.Execute()

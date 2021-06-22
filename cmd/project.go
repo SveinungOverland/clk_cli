@@ -4,6 +4,8 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
+
+	subcmd_project "clk/cmd/subcmd/project"
 )
 
 // projectCmd represents the project command
@@ -23,6 +25,8 @@ to quickly create a Cobra application.`,
 
 func init() {
 	rootCmd.AddCommand(ProjectCmd)
+
+	subcmd_project.RegisterSet(ProjectCmd)
 
 	// Here you will define your flags and configuration settings.
 

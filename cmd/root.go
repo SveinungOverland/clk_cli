@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"clk/util"
+	"clk/clockify/util"
 	"fmt"
 	"os"
 
@@ -9,13 +9,14 @@ import (
 
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/viper"
+	// _ "github.com/mattn/go-sqlite3"
 )
 
 var (
-	cfgFile   string // Config file
-	api_key   string // Clockify api key
-	workspace string // Clockify workspace
-	project   string // Clockify project
+	cfgFile       string // Config file
+	api_key       string // Clockify api key
+	workspaceName string // Clockify workspace
+	projectName   string // Clockify project
 )
 
 // rootCmd represents the base command when called without any subcommands
@@ -36,7 +37,7 @@ to quickly create a Cobra application.`,
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
-	rootCmd.GenZshCompletionFile("./_clk")
+	// rootCmd.GenZshCompletionFile("./_clk")
 	cobra.CheckErr(rootCmd.Execute())
 }
 
@@ -47,15 +48,15 @@ func init() {
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
 
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.clk.yaml)")
+	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.clk_config.yaml)")
 
 	rootCmd.PersistentFlags().StringVarP(&api_key, "api_key", "a", "", "Clockify api key")
-	rootCmd.PersistentFlags().StringVarP(&workspace, "workspace", "w", "", "Clockify workspace to use")
-	rootCmd.PersistentFlags().StringVarP(&project, "project", "p", "", "Clockify project to use")
+	rootCmd.PersistentFlags().StringVarP(&workspaceName, "workspace", "w", "", "Clockify workspace to use")
+	rootCmd.PersistentFlags().StringVarP(&projectName, "project", "p", "", "Clockify project to use")
 
 	viper.BindPFlag("api_key", rootCmd.PersistentFlags().Lookup("api_key"))
-	viper.BindPFlag("workspace", rootCmd.PersistentFlags().Lookup("workspace"))
-	viper.BindPFlag("project", rootCmd.PersistentFlags().Lookup("project"))
+	viper.BindPFlag("workspace_name", rootCmd.PersistentFlags().Lookup("workspace"))
+	viper.BindPFlag("project_name", rootCmd.PersistentFlags().Lookup("project"))
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
@@ -75,14 +76,36 @@ func initConfig() {
 		// Search config in home directory with name ".clk_cli" (without extension).
 		viper.AddConfigPath(home)
 		viper.SetConfigName(".clk_config")
+		viper.SetConfigType("yaml")
 	}
 
 	viper.AutomaticEnv() // read in environment variables that match
 
 	// If a config file is found, read it in.
-	if err := viper.ReadInConfig(); err == nil {
-		// fmt.Fprintln(os.Stdout, "Using config file:", viper.ConfigFileUsed())
-		// fmt.Println(viper.AllSettings())
+	if err := viper.ReadInConfig(); err != nil {
+		fmt.Fprintln(os.Stdout, "Using config file:", viper.ConfigFileUsed())
+		fmt.Println(err.Error())
+		return
+	}
+
+	if flag := rootCmd.PersistentFlags().Lookup("workspace"); flag.Value.String() != "" {
+		// Workspace flag is set and the id needs to be found
+		fmt.Println("Finding workspace id from flag:", flag.Value.String())
+		workspaceID, err := util.GetWorkspaceIDFromName(viper.GetString("workspace_name"))
+		if err != nil {
+			fmt.Println("Could not find workspace id from --workspace flag:", err.Error())
+		}
+		viper.Set("workspace_id", workspaceID)
+	}
+
+	if flag := rootCmd.PersistentFlags().Lookup("project"); flag.Value.String() != "" {
+		// Workspace flag is set and the id needs to be found
+		fmt.Println("Finding project id from flag:", flag.Value.String())
+		projectID, err := util.GetProjectIDFromName(viper.GetString("project_name"))
+		if err != nil {
+			fmt.Println("Could not find project id from --project flag:", err.Error())
+		}
+		viper.Set("project_id", projectID)
 	}
 
 	if viper.GetString("api_key") == "" {
@@ -96,6 +119,7 @@ func initConfig() {
 				fmt.Println(err.Error())
 				os.Exit(1)
 			}
+			fmt.Println("Got here")
 		} else {
 			fmt.Println("Unusable api key, try another")
 			os.Exit(1)

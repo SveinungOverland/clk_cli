@@ -13,10 +13,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-package cmd
+package task
 
 import (
-	"clk/cmd"
 	"fmt"
 
 	"github.com/spf13/cobra"
@@ -37,8 +36,8 @@ to quickly create a Cobra application.`,
 	},
 }
 
-func init() {
-	cmd.TaskCmd.AddCommand(startCmd)
+func RegisterStart(task *cobra.Command) {
+	task.AddCommand(startCmd)
 
 	// Here you will define your flags and configuration settings.
 

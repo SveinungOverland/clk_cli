@@ -1,27 +1,35 @@
 package cmd
 
 import (
-	"clk/util"
+	"clk/clockify/queries"
+	"clk/clockify/util"
+	"errors"
 	"fmt"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 // workspaceCmd represents the workspace command
 var WorkspaceCmd = &cobra.Command{
-	Use:   "workspace",
+	Use:   "workspace `workspace name`",
 	Short: "A brief description of your command",
 	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("workspace called")
+	and usage of using your command. For example:
+	
+	Cobra is a CLI library for Go that empowers applications.
+	This application is a tool to generate the needed files
+	to quickly create a Cobra application.`,
+	Args: func(cmd *cobra.Command, args []string) error {
+		if len(args) == 0 {
+			return errors.New("Requires a workspace name")
+		} else if len(args) > 1 {
+			return errors.New("Too many arguments")
+		}
+		return nil
 	},
 	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-		workspaces, err := util.GetWorkSpaces()
+		workspaces, err := queries.GetWorkSpaces()
 		if err != nil {
 			return nil, cobra.ShellCompDirectiveNoFileComp
 		}
@@ -30,6 +38,25 @@ to quickly create a Cobra application.`,
 			output[i] = workspace.Name
 		}
 		return output, cobra.ShellCompDirectiveNoFileComp
+	},
+	Run: func(cmd *cobra.Command, args []string) {
+		workspaceName := args[0]
+		workspaceID, err := util.GetWorkspaceIDFromName(workspaceName)
+		if err != nil {
+			fmt.Println("Could not find workspace in your created workspaces, use one of:")
+			workspaces, _ := queries.GetWorkSpaces()
+			for _, workspace := range workspaces {
+				fmt.Println(" -", workspace.Name)
+			}
+		}
+
+		fmt.Println("Setting workspace to:", workspaceName)
+		viper.Set("workspace_id", workspaceID)
+		viper.Set("workspace_name", workspaceName)
+		err = viper.WriteConfig()
+		if err != nil {
+			fmt.Println("Could not save workspace to file:", err.Error())
+		}
 	},
 }
 

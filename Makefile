@@ -1,3 +1,4 @@
+CGO_ENABLED=1
 
 all: install autocomplete source
 
