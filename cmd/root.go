@@ -9,7 +9,6 @@ import (
 
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/viper"
-	// _ "github.com/mattn/go-sqlite3"
 )
 
 var (
@@ -50,7 +49,7 @@ func init() {
 
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.clk_config.yaml)")
 
-	rootCmd.PersistentFlags().StringVarP(&api_key, "api_key", "a", "", "Clockify api key")
+	rootCmd.PersistentFlags().StringVar(&api_key, "api_key", "", "Clockify api key")
 	rootCmd.PersistentFlags().StringVarP(&workspaceName, "workspace", "w", "", "Clockify workspace to use")
 	rootCmd.PersistentFlags().StringVarP(&projectName, "project", "p", "", "Clockify project to use")
 

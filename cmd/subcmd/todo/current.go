@@ -13,7 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-package task
+package todo
 
 import (
 	"fmt"
@@ -21,10 +21,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// endCmd represents the end command
-var endCmd = &cobra.Command{
-	Use:   "end",
-	Short: "A brief description of your command",
+// currentCmd represents the current command
+var currentCmd = &cobra.Command{
+	Use:     "current",
+	Aliases: []string{"c"},
+	Short:   "A brief description of your command",
 	Long: `A longer description that spans multiple lines and likely contains examples
 and usage of using your command. For example:
 
@@ -32,20 +33,20 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("end called")
+		fmt.Println("current called")
 	},
 }
 
-func RegisterEnd(task *cobra.Command) {
-	task.AddCommand(endCmd)
+func RegisterCurrent(todo *cobra.Command) {
+	todo.AddCommand(currentCmd)
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// endCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// currentCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// endCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	// currentCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

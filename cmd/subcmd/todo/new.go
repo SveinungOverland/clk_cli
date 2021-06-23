@@ -13,18 +13,23 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-package task
+package todo
 
 import (
+	"clk/db"
+	"clk/db/models"
 	"fmt"
 
+	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 // newCmd represents the new command
 var newCmd = &cobra.Command{
-	Use:   "new",
-	Short: "A brief description of your command",
+	Use:     "new",
+	Aliases: []string{"n"},
+	Short:   "A brief description of your command",
 	Long: `A longer description that spans multiple lines and likely contains examples
 and usage of using your command. For example:
 
@@ -32,12 +37,42 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("new called")
+		workspaceName := viper.GetString("workspace_name")
+		projectName := viper.GetString("project_name")
+		if workspaceName == "" || projectName == "" {
+			fmt.Println("Missing configuration, either workspace or project is missing, use `--workspace --project` flags or set it with commands")
+			fmt.Println(workspaceName, ">", projectName)
+			return
+		}
+		fmt.Println("Creating todo for", workspaceName, ">", projectName)
+		var prompt promptui.Prompt
+		prompt = promptui.Prompt{
+			Label: "Description",
+		}
+		description, err := prompt.Run()
+		if err != nil {
+			fmt.Println("Invalid description, what did you do???")
+			return
+		}
+		todo := models.ToDo{
+			Description:   description,
+			WorkspaceID:   viper.GetString("workspace_id"),
+			ProjectID:     viper.GetString("project_id"),
+			Active:        true,
+			WorkspaceName: workspaceName,
+			ProjectName:   projectName,
+		}
+		result := db.Client.Create(&todo)
+		if result.Error != nil {
+			fmt.Println("Error creating todo:", result.Error.Error())
+			return
+		}
+		viper.Set("active_todo", todo.ID)
 	},
 }
 
-func RegisterNew(task *cobra.Command) {
-	task.AddCommand(newCmd)
+func RegisterNew(todo *cobra.Command) {
+	todo.AddCommand(newCmd)
 
 	// Here you will define your flags and configuration settings.
 

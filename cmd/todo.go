@@ -5,13 +5,14 @@ import (
 
 	"github.com/spf13/cobra"
 
-	subcmd_task "clk/cmd/subcmd/task"
+	subcmd_todo "clk/cmd/subcmd/todo"
 )
 
 // taskCmd represents the task command
-var TaskCmd = &cobra.Command{
-	Use:   "task",
-	Short: "A brief description of your command",
+var TodoCmd = &cobra.Command{
+	Use:     "todo",
+	Aliases: []string{"t"},
+	Short:   "A brief description of your command",
 	Long: `A longer description that spans multiple lines and likely contains examples
 and usage of using your command. For example:
 
@@ -19,18 +20,18 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("task called")
+		fmt.Println("todo called")
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(TaskCmd)
+	rootCmd.AddCommand(TodoCmd)
 
-	subcmd_task.RegisterCurrent(TaskCmd)
-	subcmd_task.RegisterEnd(TaskCmd)
-	subcmd_task.RegisterNew(TaskCmd)
-	subcmd_task.RegisterStart(TaskCmd)
-	subcmd_task.RegisterList(TaskCmd)
+	subcmd_todo.RegisterCurrent(TodoCmd)
+	subcmd_todo.RegisterEnd(TodoCmd)
+	subcmd_todo.RegisterNew(TodoCmd)
+	subcmd_todo.RegisterStart(TodoCmd)
+	subcmd_todo.RegisterList(TodoCmd)
 
 	// Here you will define your flags and configuration settings.
 

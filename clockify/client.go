@@ -21,12 +21,6 @@ type Project struct {
 	Archived bool   `json:"archived"`
 }
 
-type Task struct {
-	ID     string `json:"id"`
-	Name   string `json:"name"`
-	Status string `json:"status"`
-}
-
 func Api(path string) string {
 	return fmt.Sprint(api_base, path)
 }
