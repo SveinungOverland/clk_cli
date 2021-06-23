@@ -16,9 +16,14 @@ limitations under the License.
 package todo
 
 import (
+	"clk/clockify/queries"
+	"clk/db"
+	"clk/db/models"
 	"fmt"
+	"time"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 // endCmd represents the end command
@@ -33,7 +38,38 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("end called")
+		currentTodoID := viper.GetString("active_todo")
+		if currentTodoID == "" {
+			fmt.Println("No current todo, select one or create a new todo")
+			return
+		}
+		var currentTodo models.ToDo
+		result := db.Client.First(&currentTodo, currentTodoID)
+		if result.Error != nil {
+			fmt.Println("SQL error:", result.Error.Error())
+			return
+		}
+
+		endTime := time.Now()
+
+		currentTodo.End = &endTime
+
+		timeEntry, err := queries.EndTimeEntry(currentTodo)
+		if err != nil {
+			fmt.Println("Error ending todo in clockify:", err.Error())
+			return
+		}
+
+		if timeEntry.TimeInterval.End == nil {
+			fmt.Println("Did not properly update time entry")
+			fmt.Printf("%+v\n", timeEntry)
+			return
+		}
+
+		result = db.Client.Save(&currentTodo)
+		if result.Error != nil {
+			fmt.Println("SQL error:", result.Error.Error())
+		}
 	},
 }
 

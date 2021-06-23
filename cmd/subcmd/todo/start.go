@@ -16,9 +16,14 @@ limitations under the License.
 package todo
 
 import (
+	"clk/clockify/queries"
+	"clk/db"
+	"clk/db/models"
 	"fmt"
+	"time"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 // startCmd represents the start command
@@ -33,7 +38,36 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("start called")
+		currentTodoID := viper.GetString("active_todo")
+		if currentTodoID == "" {
+			fmt.Println("No current todo, select one or create a new todo")
+			return
+		}
+		var currentTodo models.ToDo
+		result := db.Client.First(&currentTodo, currentTodoID)
+		if result.Error != nil {
+			fmt.Println("SQL error:", result.Error.Error())
+			return
+		}
+
+		timeEntry, err := queries.PostTimeEntry(currentTodo)
+		if err != nil {
+			fmt.Println("Error when creating time entry:", err.Error())
+			return
+		}
+
+		startTime, err := time.Parse(time.RFC3339, timeEntry.TimeInterval.Start)
+		if err != nil {
+			fmt.Println("Could not parse start time from clockify:", err.Error())
+			return
+		}
+
+		currentTodo.TimeEntryID = &timeEntry.ID
+		currentTodo.Start = &startTime
+		result = db.Client.Save(&currentTodo)
+		if result.Error != nil {
+			fmt.Println("SQL error:", result.Error.Error())
+		}
 	},
 }
 

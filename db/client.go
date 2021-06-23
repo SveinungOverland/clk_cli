@@ -29,9 +29,12 @@ func init() {
 	var version int
 	Client.Raw("PRAGMA user_version").Scan(&version)
 
-	if version != 1 {
+	const NEWEST_VERSION int = 2
+	if version != NEWEST_VERSION {
 		fmt.Println("DB version is wrong, performing migration")
 		Client.AutoMigrate(&models.ToDo{})
-		Client.Raw("PRAGMA user_version = 1")
+		Client.Raw(fmt.Sprint("PRAGMA user_version = ", NEWEST_VERSION)).Scan(nil)
+		Client.Raw("PRAGMA user_version").Scan(&version)
+		fmt.Println("New version is", version)
 	}
 }

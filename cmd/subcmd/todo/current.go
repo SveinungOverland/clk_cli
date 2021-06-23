@@ -16,9 +16,12 @@ limitations under the License.
 package todo
 
 import (
+	"clk/db"
+	"clk/db/models"
 	"fmt"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 // currentCmd represents the current command
@@ -33,7 +36,17 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("current called")
+		currentTodoID := viper.GetString("active_todo")
+		if currentTodoID == "" {
+			fmt.Println("No selected todo")
+			return
+		}
+		var currentTodo models.ToDo
+		result := db.Client.First(&currentTodo, currentTodoID)
+		if result.Error != nil {
+			fmt.Println("SQL error:", result.Error.Error())
+		}
+		fmt.Println(currentTodo)
 	},
 }
 

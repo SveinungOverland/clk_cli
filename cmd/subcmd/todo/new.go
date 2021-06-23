@@ -68,6 +68,10 @@ to quickly create a Cobra application.`,
 			return
 		}
 		viper.Set("active_todo", todo.ID)
+		err = viper.WriteConfig()
+		if err != nil {
+			fmt.Println("Error writing active todo to file:", err.Error())
+		}
 	},
 }
 

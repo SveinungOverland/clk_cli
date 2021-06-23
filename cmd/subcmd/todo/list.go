@@ -41,17 +41,15 @@ to quickly create a Cobra application.`,
 			return
 		}
 
-		rows, err := db.Client.Model(&models.ToDo{}).Where("active = true").Order("created_at desc").Rows()
-		if err != nil {
-			fmt.Println("SQL error:", err.Error())
-			return
-		}
 		var todos []models.ToDo
-		rows.Scan(&todos)
+		db.Client.
+			Where("active = 1").
+			Order("created_at desc").
+			Find(&todos)
 
-		fmt.Println("Active todos")
+		fmt.Println("Active todos:")
 		for _, todo := range todos {
-			fmt.Printf("[%v] [%s > %s] %s", todo.Active, todo.WorkspaceName, todo.ProjectName, todo.Description)
+			fmt.Println(todo)
 		}
 	},
 }

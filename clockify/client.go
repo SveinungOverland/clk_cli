@@ -21,6 +21,15 @@ type Project struct {
 	Archived bool   `json:"archived"`
 }
 
+type TimeEntry struct {
+	ID           string `json:"id"`
+	TimeInterval struct {
+		Duration *string `json:"duration"`
+		End      *string `json:"end"`
+		Start    string  `json:"start"`
+	} `json:"timeInterval"`
+}
+
 func Api(path string) string {
 	return fmt.Sprint(api_base, path)
 }
