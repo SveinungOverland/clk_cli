@@ -49,7 +49,11 @@ var WorkspaceCmd = &cobra.Command{
 				fmt.Println(" -", workspace.Name)
 			}
 		}
-
+		previousWorkspace := viper.GetString("workspace_name")
+		if workspaceName != previousWorkspace {
+			viper.Set("project_id", "")
+			viper.Set("project_name", "")
+		}
 		fmt.Println("Setting workspace to:", workspaceName)
 		viper.Set("workspace_id", workspaceID)
 		viper.Set("workspace_name", workspaceName)

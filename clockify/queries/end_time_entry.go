@@ -18,7 +18,10 @@ func EndTimeEntry(todo models.ToDo) (clockify.TimeEntry, error) {
 	}
 
 	requestJSON := map[string]string{
-		"end": todo.End.UTC().Format(time.RFC3339),
+		"start":       todo.Start.UTC().Format(time.RFC3339),
+		"description": todo.Description,
+		"projectId":   todo.ProjectID,
+		"end":         todo.End.UTC().Format(time.RFC3339),
 	}
 	byteBuffer := new(bytes.Buffer)
 	json.NewEncoder(byteBuffer).Encode(requestJSON)

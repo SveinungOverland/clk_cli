@@ -66,6 +66,8 @@ to quickly create a Cobra application.`,
 			return
 		}
 
+		currentTodo.Active = false
+
 		result = db.Client.Save(&currentTodo)
 		if result.Error != nil {
 			fmt.Println("SQL error:", result.Error.Error())
