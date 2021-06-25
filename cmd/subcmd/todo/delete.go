@@ -16,16 +16,18 @@ limitations under the License.
 package todo
 
 import (
-	"clk/db/queries"
+	"clk/db"
+	"clk/util"
 	"fmt"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
-// newCmd represents the new command
-var listCmd = &cobra.Command{
-	Use:     "list",
-	Aliases: []string{"l"},
+// deleteCmd represents the delete command
+var deleteCmd = &cobra.Command{
+	Use:     "delete",
+	Aliases: []string{"s"},
 	Short:   "A brief description of your command",
 	Long: `A longer description that spans multiple lines and likely contains examples
 and usage of using your command. For example:
@@ -40,34 +42,48 @@ to quickly create a Cobra application.`,
 			return
 		}
 
-		todos, err := queries.GetToDos(showInactive, 0, 0)
+		todo, err := util.SelectToDo(showInactive)
 		if err != nil {
-			fmt.Println("SQL error:", err.Error())
+			fmt.Println("Error:", err.Error())
 			return
 		}
 
-		if showInactive {
-			fmt.Println("Todos:")
-		} else {
-			fmt.Println("Active todos:")
+		fmt.Println("Using:", todo)
+		var input string
+		fmt.Print("Are you sure you want to delete (y/n): ", todo, ": ")
+		_, err = fmt.Scanln(&input)
+		if err != nil || !(input == "y" || input == "Y" || input == "yes") {
+			return
 		}
 
-		for _, todo := range todos {
-			fmt.Println(todo)
+		// Check if config needs to be unset
+		if viper.GetUint("active_todo") == todo.ID {
+			viper.Set("active_todo", nil)
+			err := viper.WriteConfig()
+			if err != nil {
+				fmt.Println("Error in writing config:", err.Error())
+				return
+			}
+		}
+
+		result := db.Client.Delete(&todo)
+		if result.Error != nil {
+			fmt.Println("SQL error:", result.Error.Error())
+			return
 		}
 	},
 }
 
-func RegisterList(todo *cobra.Command) {
-	todo.AddCommand(listCmd)
+func RegisterDelete(todo *cobra.Command) {
+	todo.AddCommand(deleteCmd)
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// newCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// currentCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-
+	// currentCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

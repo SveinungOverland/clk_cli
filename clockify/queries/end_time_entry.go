@@ -26,7 +26,7 @@ func EndTimeEntry(todo models.ToDo) (clockify.TimeEntry, error) {
 	byteBuffer := new(bytes.Buffer)
 	json.NewEncoder(byteBuffer).Encode(requestJSON)
 
-	fmt.Println("Putting to:", fmt.Sprint("workspaces/", todo.WorkspaceID, "/time-entries/", *todo.TimeEntryID))
+	// fmt.Println("Putting to:", fmt.Sprint("workspaces/", todo.WorkspaceID, "/time-entries/", *todo.TimeEntryID))
 
 	resp, err := clockify.Call("PUT", clockify.Api(fmt.Sprint("workspaces/", todo.WorkspaceID, "/time-entries/", *todo.TimeEntryID)), byteBuffer)
 	if err != nil {

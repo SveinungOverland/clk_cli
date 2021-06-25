@@ -66,6 +66,7 @@ to quickly create a Cobra application.`,
 			return
 		}
 
+		fmt.Println("Successfully ended:", currentTodo)
 		currentTodo.Active = false
 
 		result = db.Client.Save(&currentTodo)

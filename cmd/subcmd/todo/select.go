@@ -16,16 +16,17 @@ limitations under the License.
 package todo
 
 import (
-	"clk/db/queries"
+	"clk/util"
 	"fmt"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
-// newCmd represents the new command
-var listCmd = &cobra.Command{
-	Use:     "list",
-	Aliases: []string{"l"},
+// selectCmd represents the select command
+var selectCmd = &cobra.Command{
+	Use:     "select",
+	Aliases: []string{"s"},
 	Short:   "A brief description of your command",
 	Long: `A longer description that spans multiple lines and likely contains examples
 and usage of using your command. For example:
@@ -40,34 +41,31 @@ to quickly create a Cobra application.`,
 			return
 		}
 
-		todos, err := queries.GetToDos(showInactive, 0, 0)
+		todo, err := util.SelectToDo(showInactive)
 		if err != nil {
-			fmt.Println("SQL error:", err.Error())
+			fmt.Println("Error:", err.Error())
 			return
 		}
 
-		if showInactive {
-			fmt.Println("Todos:")
-		} else {
-			fmt.Println("Active todos:")
-		}
-
-		for _, todo := range todos {
-			fmt.Println(todo)
+		fmt.Println("Using:", todo)
+		viper.Set("active_todo", todo.ID)
+		err = viper.WriteConfig()
+		if err != nil {
+			fmt.Println("Could not save configuration:", err.Error())
 		}
 	},
 }
 
-func RegisterList(todo *cobra.Command) {
-	todo.AddCommand(listCmd)
+func RegisterSelect(todo *cobra.Command) {
+	todo.AddCommand(selectCmd)
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// newCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// currentCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-
+	// currentCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

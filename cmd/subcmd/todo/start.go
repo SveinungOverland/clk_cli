@@ -19,6 +19,7 @@ import (
 	"clk/clockify/queries"
 	"clk/db"
 	"clk/db/models"
+	"clk/util"
 	"fmt"
 	"time"
 
@@ -38,16 +39,39 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		currentTodoID := viper.GetString("active_todo")
-		if currentTodoID == "" {
-			fmt.Println("No current todo, select one or create a new todo")
+		selectTodo, err := cmd.Flags().GetBool("select")
+		if err != nil {
+			fmt.Println("Flag error:", err.Error())
 			return
 		}
-		var currentTodo models.ToDo
-		result := db.Client.First(&currentTodo, currentTodoID)
-		if result.Error != nil {
-			fmt.Println("SQL error:", result.Error.Error())
+		showInactive, err := cmd.Flags().GetBool("all")
+		if err != nil {
+			fmt.Println("Flag error:", err.Error())
 			return
+		}
+
+		var currentTodoID uint
+		var currentTodo models.ToDo
+
+		// Use select instead of currently selected todo
+		if selectTodo {
+			currentTodo, err = util.SelectToDo(showInactive)
+			if err != nil {
+				fmt.Println("Error:", err.Error())
+				return
+			}
+			currentTodoID = currentTodo.ID
+		} else {
+			currentTodoID = viper.GetUint("active_todo")
+			if currentTodoID == 0 {
+				fmt.Println("No current todo, select one or create a new todo")
+				return
+			}
+			result := db.Client.First(&currentTodo, currentTodoID)
+			if result.Error != nil {
+				fmt.Println("SQL error:", result.Error.Error())
+				return
+			}
 		}
 
 		timeEntry, err := queries.PostTimeEntry(currentTodo)
@@ -64,15 +88,21 @@ to quickly create a Cobra application.`,
 
 		currentTodo.TimeEntryID = &timeEntry.ID
 		currentTodo.Start = &startTime
-		result = db.Client.Save(&currentTodo)
+		currentTodo.End = nil
+		currentTodo.Active = true
+		result := db.Client.Save(&currentTodo)
 		if result.Error != nil {
 			fmt.Println("SQL error:", result.Error.Error())
 		}
+
+		fmt.Println("Successfully started:", currentTodo)
 	},
 }
 
 func RegisterStart(todo *cobra.Command) {
 	todo.AddCommand(startCmd)
+
+	startCmd.Flags().BoolP("select", "s", false, "Select which todo to start, instead of using currently selected one")
 
 	// Here you will define your flags and configuration settings.
 

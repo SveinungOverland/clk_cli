@@ -22,6 +22,9 @@ to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("todo called")
 	},
+	// PersistentPreRun: func(cmd *cobra.Command, args []string) {
+
+	// },
 }
 
 func init() {
@@ -32,6 +35,10 @@ func init() {
 	subcmd_todo.RegisterNew(TodoCmd)
 	subcmd_todo.RegisterStart(TodoCmd)
 	subcmd_todo.RegisterList(TodoCmd)
+	subcmd_todo.RegisterSelect(TodoCmd)
+	subcmd_todo.RegisterDelete(TodoCmd)
+
+	TodoCmd.PersistentFlags().BoolP("all", "a", false, "Show all todos, even inactive ones")
 
 	// Here you will define your flags and configuration settings.
 
