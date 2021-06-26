@@ -1,0 +1,1 @@
+p10k segment -t "$(clk todo active)"

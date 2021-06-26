@@ -37,6 +37,7 @@ func init() {
 	subcmd_todo.RegisterList(TodoCmd)
 	subcmd_todo.RegisterSelect(TodoCmd)
 	subcmd_todo.RegisterDelete(TodoCmd)
+	subcmd_todo.RegisterActive(TodoCmd)
 
 	TodoCmd.PersistentFlags().BoolP("all", "a", false, "Show all todos, even inactive ones")
 

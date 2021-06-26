@@ -39,6 +39,16 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
+		runningTodo := viper.GetUint("running_todo")
+		if runningTodo != 0 {
+			fmt.Println("A todo is already running, you must end it, setting it to selected todo for convenience")
+			viper.Set("active_todo", runningTodo)
+			err := viper.WriteConfig()
+			if err != nil {
+				fmt.Println("Error updating config:", err.Error())
+				return
+			}
+		}
 		selectTodo, err := cmd.Flags().GetBool("select")
 		if err != nil {
 			fmt.Println("Flag error:", err.Error())
@@ -94,7 +104,12 @@ to quickly create a Cobra application.`,
 		if result.Error != nil {
 			fmt.Println("SQL error:", result.Error.Error())
 		}
-
+		viper.Set("running_todo", currentTodo.ID)
+		err = viper.WriteConfig()
+		if err != nil {
+			fmt.Println("Error updating config file:", err.Error())
+			return
+		}
 		fmt.Println("Successfully started:", currentTodo)
 	},
 }

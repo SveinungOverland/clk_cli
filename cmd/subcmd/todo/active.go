@@ -16,21 +16,18 @@ limitations under the License.
 package todo
 
 import (
-	"clk/clockify/queries"
 	"clk/db"
 	"clk/db/models"
 	"fmt"
-	"time"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
 
-// endCmd represents the end command
-var endCmd = &cobra.Command{
-	Use:     "end",
-	Aliases: []string{"e"},
-	Short:   "A brief description of your command",
+// activeCmd represents the active command
+var activeCmd = &cobra.Command{
+	Use:   "active",
+	Short: "A brief description of your command",
 	Long: `A longer description that spans multiple lines and likely contains examples
 and usage of using your command. For example:
 
@@ -38,61 +35,30 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		currentTodoID := viper.GetString("active_todo")
-		if currentTodoID == "" {
-			fmt.Println("No current todo, select one or create a new todo")
+		runningTodo := viper.GetUint("running_todo")
+		if runningTodo == 0 {
 			return
 		}
 		var currentTodo models.ToDo
-		result := db.Client.First(&currentTodo, currentTodoID)
+		result := db.Client.First(&currentTodo, runningTodo)
 		if result.Error != nil {
-			fmt.Println("SQL error:", result.Error.Error())
+			fmt.Println("SQL error")
 			return
 		}
-
-		endTime := time.Now()
-
-		fmt.Println("Ending:", currentTodo)
-
-		currentTodo.End = &endTime
-
-		timeEntry, err := queries.EndTimeEntry(currentTodo)
-		if err != nil {
-			fmt.Println("Error ending todo in clockify:", err.Error())
-			return
-		}
-
-		if timeEntry.TimeInterval.End == nil {
-			fmt.Println("Did not properly update time entry")
-			fmt.Printf("%+v\n", timeEntry)
-			return
-		}
-
-		currentTodo.Active = false
-
-		result = db.Client.Save(&currentTodo)
-		if result.Error != nil {
-			fmt.Println("SQL error:", result.Error.Error())
-		}
-
-		viper.Set("running_todo", 0)
-		err = viper.WriteConfig()
-		if err != nil {
-			fmt.Println("Error updating config:", err.Error())
-		}
+		fmt.Println(currentTodo)
 	},
 }
 
-func RegisterEnd(todo *cobra.Command) {
-	todo.AddCommand(endCmd)
+func RegisterActive(todo *cobra.Command) {
+	todo.AddCommand(activeCmd)
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// endCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// currentCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// endCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	// currentCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

@@ -1,0 +1,3 @@
+
+
+p10k segment -t "$(clk context)"
